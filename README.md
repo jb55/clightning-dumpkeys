@@ -15,5 +15,5 @@ You need to have the `secp256k1` library installed for this to compile
 
 ## todo
 
-- [ ] dump xpub
+- [x] dump xpubs
 - [ ] export as output descriptors
