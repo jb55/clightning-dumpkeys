@@ -3,7 +3,7 @@ BIN = clightning-dumpkeys
 PREFIX ?= /usr/local
 
 LDFLAGS = -lsecp256k1
-CFLAGS = $(DEFS) -Og -g -I src -Wall -Werror -Wextra -std=c99
+CFLAGS = $(DEFS) -O2 -g -I src -Wall -Werror -Wextra -std=c99
 
 OBJS  = sha256.o
 OBJS += sha512.o
