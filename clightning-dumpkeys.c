@@ -190,7 +190,7 @@ static int dump_xpriv(const char *secretfile) {
 
 		wally_base58_from_bytes(buf, BIP32_SERIALIZED_LEN,
 					BASE58_FLAG_CHECKSUM, &out);
-		printf("%s   \t%s\n", ver->type, out);
+		printf("%s\n", out);
 		wally_free_string(out);
 	}
 
