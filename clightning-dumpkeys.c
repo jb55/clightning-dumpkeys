@@ -4,6 +4,7 @@
 #include "compiler.h"
 #include "secp256k1.h"
 #include "bip32.h"
+#include "hash.h"
 #include "base58.h"
 
 #include <stdio.h>
@@ -63,7 +64,7 @@ static void populate_secretstuff(void)
 {
 	u8 bip32_seed[BIP32_ENTROPY_LEN_256];
 	u32 salt = 0;
-	struct ext_key master_extkey, child_extkey;
+	/* struct ext_key master_extkey, child_extkey; */
 	const u32 flags = SECP256K1_CONTEXT_VERIFY | SECP256K1_CONTEXT_SIGN;
 	secp256k1_context *ctx = secp256k1_context_create(flags);
 
@@ -91,7 +92,7 @@ static void populate_secretstuff(void)
 		salt++;
 	} while (bip32_key_from_seed(ctx, bip32_seed, sizeof(bip32_seed),
 				     bip32_key_version.bip32_privkey_version,
-				     0, &master_extkey) != WALLY_OK);
+				     0, &secretstuff.bip32) != WALLY_OK);
 
 	/* BIP 32:
 	 *
@@ -114,18 +115,18 @@ static void populate_secretstuff(void)
 	 * account number i of the HDW derived from master m.
 	 */
 	/* Hence child 0, then child 0 again to get extkey to derive from. */
-	if (bip32_key_from_parent(ctx, &master_extkey, 0,
-				  BIP32_FLAG_KEY_PRIVATE,
-				  &child_extkey) != WALLY_OK)
-		/*~ status_failed() is a helper which exits and sends lightningd
-		 * a message about what happened.  For hsmd, that's fatal to
-		 * lightningd. */
-		fatal1("Can't derive child bip32 key");
+	/* if (bip32_key_from_parent(ctx, &master_extkey, 0, */
+	/* 			  BIP32_FLAG_KEY_PRIVATE, */
+	/* 			  &child_extkey) != WALLY_OK) */
+	/* 	/\*~ status_failed() is a helper which exits and sends lightningd */
+	/* 	 * a message about what happened.  For hsmd, that's fatal to */
+	/* 	 * lightningd. *\/ */
+	/* 	fatal1("Can't derive child bip32 key"); */
 
-	if (bip32_key_from_parent(ctx, &child_extkey, 0,
-				  BIP32_FLAG_KEY_PRIVATE,
-				  &secretstuff.bip32) != WALLY_OK)
-		fatal1("Can't derive private bip32 key");
+	/* if (bip32_key_from_parent(ctx, &child_extkey, 0, */
+	/* 			  BIP32_FLAG_KEY_PRIVATE, */
+	/* 			  &secretstuff.bip32) != WALLY_OK) */
+	/* 	fatal1("Can't derive private bip32 key"); */
 }
 
 static void load_hsm(const char *secretfile)
@@ -149,9 +150,43 @@ static int wally_free_string(char *str)
 	return WALLY_OK;
 }
 
+static inline size_t hex_str_size(size_t bytes)
+{
+	return 2 * bytes + 1;
+}
+
+
+static char hexchar(unsigned int val)
+{
+	if (val < 10)
+		return '0' + val;
+	if (val < 16)
+		return 'a' + val - 10;
+	abort();
+}
+
+static bool hex_encode(const void *buf, size_t bufsize, char *dest,
+		       size_t destsize)
+{
+	size_t i;
+
+	if (destsize < hex_str_size(bufsize))
+		return false;
+
+	for (i = 0; i < bufsize; i++) {
+		unsigned int c = ((const unsigned char *)buf)[i];
+		*(dest++) = hexchar(c >> 4);
+		*(dest++) = hexchar(c & 0xF);
+	}
+	*dest = '\0';
+
+	return true;
+}
 
 static int dump_xpriv(const char *secretfile) {
-	static u8 buf[BIP32_SERIALIZED_LEN];
+	static u8 buf[128];
+	/* static char buf2[128]; */
+	static char hexbuf[128];
 	char *out;
 
 	secretstuff.bip32.version = BIP32_VER_MAIN_PRIVATE;
@@ -194,6 +229,12 @@ static int dump_xpriv(const char *secretfile) {
 
 	printf("%s\n", out);
 	wally_free_string(out);
+
+	hex_encode(secretstuff.bip32.hash160, HASH160_LEN, hexbuf,
+		   sizeof(hexbuf));
+
+	/* printf("sh(wpkh([%.*s/0]%s))\n", hexbuf); */
+	/* printf("wpkh(%s)\n", hexbuf); */
 
 	return 0;
 }
