@@ -18,4 +18,7 @@ typedef int8_t s8;
 #define WALLY_EINVAL -2 /** Invalid argument */
 #define WALLY_ENOMEM -3 /** malloc() failed */
 
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 #endif /* DK_SHORT_TYPES_H */

@@ -4,6 +4,7 @@
 #include "compiler.h"
 #include "secp256k1.h"
 #include "bip32.h"
+#include "base58.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -13,7 +14,6 @@
 #include <assert.h>
 
 #define BIP32_ENTROPY_LEN_256 32
-
 
 #define fatal(fmt, ...) do { fprintf(stderr, fmt "\n", __VA_ARGS__); exit(1); } while (0)
 #define fatal1(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while (0)
@@ -140,6 +140,63 @@ static void load_hsm(const char *secretfile)
 	populate_secretstuff();
 }
 
+static int wally_free_string(char *str)
+{
+	if (!str)
+		return WALLY_EINVAL;
+	wally_clear(str, strlen(str));
+	free(str);
+	return WALLY_OK;
+}
+
+
+static int dump_xpriv(const char *secretfile) {
+	static u8 buf[BIP32_SERIALIZED_LEN];
+	char *out;
+
+	secretstuff.bip32.version = BIP32_VER_MAIN_PRIVATE;
+
+	bip32_key_version = (struct bip32_key_version)
+	  { .bip32_pubkey_version  = BIP32_VER_MAIN_PUBLIC
+	  , .bip32_privkey_version = BIP32_VER_MAIN_PRIVATE
+	  };
+
+	load_hsm(secretfile);
+
+	struct version {
+		const char *type;
+		u32 version;
+	} versions[] = {
+		{ "standard",    BIP32_VER_MAIN_PRIVATE },
+		/* { "p2wpkh-p2sh", 0x049d7878 }, */
+		/* { "p2wpkh",      0x04b2430c }, */
+		/* { "p2wsh",       0x02aa7a99 }, */
+	};
+
+	for (size_t i = 0; i < ARRAY_SIZE(versions); i++) {
+		struct version *ver = &versions[i];
+		secretstuff.bip32.version = ver->version;
+		secretstuff.bip32.depth = 0;
+		memset(secretstuff.bip32.parent160, 0,
+		       sizeof(secretstuff.bip32.parent160));
+		*ver = versions[i];
+
+		int ret = bip32_key_serialize(&secretstuff.bip32,
+					      BIP32_FLAG_KEY_PRIVATE,
+					      buf,
+					      BIP32_SERIALIZED_LEN);
+
+		assert(ret == WALLY_OK);
+
+		wally_base58_from_bytes(buf, BIP32_SERIALIZED_LEN,
+					BASE58_FLAG_CHECKSUM, &out);
+		printf("%s   \t%s\n", ver->type, out);
+		wally_free_string(out);
+	}
+
+	return 0;
+}
+
 void usage()
 {
 	fprintf(stderr, "usage: clightning-dumpkeys <hsmd_secretfile>\n");
@@ -154,7 +211,7 @@ int main(int argc, char *argv[])
 	const char *secretfile = argv[1];
 
 	assert_bip32_assumptions();
-	load_hsm(secretfile);
+	dump_xpriv(secretfile);
 
 	return 0;
 }

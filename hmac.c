@@ -5,13 +5,23 @@
 #define IPAD 0x3636363636363636ULL
 #define OPAD 0x5C5C5C5C5C5C5C5CULL
 
-#define BLOCK_U64S (HMAC_SHA256_BLOCKSIZE / sizeof(uint64_t))
+#define BLOCK_256_U64S (HMAC_SHA256_BLOCKSIZE / sizeof(uint64_t))
+#define BLOCK_512_U64S (HMAC_SHA512_BLOCKSIZE / sizeof(uint64_t))
 
-static inline void xor_block(uint64_t block[BLOCK_U64S], uint64_t pad)
+static inline void xor_block_256(uint64_t block[BLOCK_256_U64S], uint64_t pad)
 {
 	size_t i;
 
-	for (i = 0; i < BLOCK_U64S; i++)
+	for (i = 0; i < BLOCK_256_U64S; i++)
+		block[i] ^= pad;
+}
+
+
+static inline void xor_block_512(uint64_t block[BLOCK_512_U64S], uint64_t pad)
+{
+	size_t i;
+
+	for (i = 0; i < BLOCK_512_U64S; i++)
 		block[i] ^= pad;
 }
 
@@ -42,7 +52,7 @@ void hmac_sha256_init(struct hmac_sha256_ctx *ctx,
 	 * (2) XOR (bitwise exclusive-OR) the B byte string computed
 	 * in step (1) with ipad
 	 */
-	xor_block(k_ipad, IPAD);
+	xor_block_256(k_ipad, IPAD);
 
 	/*
 	 * We start (4) here, appending text later:
@@ -58,7 +68,7 @@ void hmac_sha256_init(struct hmac_sha256_ctx *ctx,
 	 * (5) XOR (bitwise exclusive-OR) the B byte string computed in
 	 * step (1) with opad
 	 */
-	xor_block(ctx->k_opad, IPAD^OPAD);
+	xor_block_256(ctx->k_opad, IPAD^OPAD);
 }
 
 
@@ -89,7 +99,7 @@ void hmac_sha512_init(struct hmac_sha512_ctx *ctx,
 	 * (2) XOR (bitwise exclusive-OR) the B byte string computed
 	 * in step (1) with ipad
 	 */
-	xor_block(k_ipad, IPAD);
+	xor_block_512(k_ipad, IPAD);
 
 	/*
 	 * We start (4) here, appending text later:
@@ -105,7 +115,7 @@ void hmac_sha512_init(struct hmac_sha512_ctx *ctx,
 	 * (5) XOR (bitwise exclusive-OR) the B byte string computed in
 	 * step (1) with opad
 	 */
-	xor_block(ctx->k_opad, IPAD^OPAD);
+	xor_block_512(ctx->k_opad, IPAD^OPAD);
 }
 
 
