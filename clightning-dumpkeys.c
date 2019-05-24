@@ -210,7 +210,6 @@ int main(int argc, char *argv[])
 
 	const char *secretfile = argv[1];
 
-	assert_bip32_assumptions();
 	dump_xpriv(secretfile);
 
 	return 0;

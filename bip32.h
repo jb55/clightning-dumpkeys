@@ -247,6 +247,4 @@ int bip32_key_from_base58_alloc(
 	const secp256k1_context *ctx,
 	const char *base58, struct ext_key **output);
 
-void assert_bip32_assumptions(void);
-
 #endif /* LIBWALLY_CORE_BIP32_H */

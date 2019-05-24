@@ -24,7 +24,7 @@ static const unsigned char SEED[] = {
 
 /* LCOV_EXCL_START */
 /* Check assumptions we expect to hold true */
-void assert_bip32_assumptions(void)
+UNUSED static void assert_bip32_assumptions(void) 
 {
 #define key_off(member) offsetof(struct ext_key,  member)
 #define key_size(member) sizeof(((struct ext_key *)0)->member)
