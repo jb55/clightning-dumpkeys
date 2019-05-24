@@ -163,36 +163,24 @@ static int dump_xpriv(const char *secretfile) {
 
 	load_hsm(secretfile);
 
-	struct version {
-		const char *type;
-		u32 version;
-	} versions[] = {
-		{ "standard",    BIP32_VER_MAIN_PRIVATE },
-		/* { "p2wpkh-p2sh", 0x049d7878 }, */
-		/* { "p2wpkh",      0x04b2430c }, */
-		/* { "p2wsh",       0x02aa7a99 }, */
-	};
+	secretstuff.bip32.version = BIP32_VER_MAIN_PRIVATE;
+	secretstuff.bip32.depth = 0;
 
-	for (size_t i = 0; i < ARRAY_SIZE(versions); i++) {
-		struct version *ver = &versions[i];
-		secretstuff.bip32.version = ver->version;
-		secretstuff.bip32.depth = 0;
-		memset(secretstuff.bip32.parent160, 0,
-		       sizeof(secretstuff.bip32.parent160));
-		*ver = versions[i];
+	memset(secretstuff.bip32.parent160, 0,
+	       sizeof(secretstuff.bip32.parent160));
 
-		int ret = bip32_key_serialize(&secretstuff.bip32,
-					      BIP32_FLAG_KEY_PRIVATE,
-					      buf,
-					      BIP32_SERIALIZED_LEN);
+	int ret = bip32_key_serialize(&secretstuff.bip32,
+				      BIP32_FLAG_KEY_PRIVATE,
+				      buf,
+				      BIP32_SERIALIZED_LEN);
 
-		assert(ret == WALLY_OK);
+	assert(ret == WALLY_OK);
 
-		wally_base58_from_bytes(buf, BIP32_SERIALIZED_LEN,
-					BASE58_FLAG_CHECKSUM, &out);
-		printf("%s\n", out);
-		wally_free_string(out);
-	}
+	wally_base58_from_bytes(buf, BIP32_SERIALIZED_LEN,
+				BASE58_FLAG_CHECKSUM, &out);
+
+	printf("%s\n", out);
+	wally_free_string(out);
 
 	return 0;
 }
