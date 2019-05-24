@@ -214,7 +214,7 @@ static int dump_xpriv(const char *secretfile) {
 	wally_base58_from_bytes(buf, BIP32_SERIALIZED_LEN,
 				BASE58_FLAG_CHECKSUM, &out);
 
-	printf("%s\n", out);
+	printf("%s\troot\n", out);
 	wally_free_string(out);
 
 	ret = bip32_key_serialize(&secretstuff.bip32,
@@ -227,7 +227,7 @@ static int dump_xpriv(const char *secretfile) {
 	wally_base58_from_bytes(buf, BIP32_SERIALIZED_LEN,
 				BASE58_FLAG_CHECKSUM, &out);
 
-	printf("%s\n", out);
+	printf("%s\troot\n", out);
 	wally_free_string(out);
 
 	hex_encode(secretstuff.bip32.hash160, HASH160_LEN, hexbuf,
