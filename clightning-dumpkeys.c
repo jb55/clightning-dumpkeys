@@ -182,6 +182,19 @@ static int dump_xpriv(const char *secretfile) {
 	printf("%s\n", out);
 	wally_free_string(out);
 
+	ret = bip32_key_serialize(&secretstuff.bip32,
+				  BIP32_FLAG_KEY_PUBLIC,
+				  buf,
+				  BIP32_SERIALIZED_LEN);
+
+	assert(ret == WALLY_OK);
+
+	wally_base58_from_bytes(buf, BIP32_SERIALIZED_LEN,
+				BASE58_FLAG_CHECKSUM, &out);
+
+	printf("%s\n", out);
+	wally_free_string(out);
+
 	return 0;
 }
 
