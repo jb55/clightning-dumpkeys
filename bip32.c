@@ -111,8 +111,8 @@ static int key_compute_pub_key(const secp256k1_context *ctx,
 
 static void key_compute_hash160(struct ext_key *key_out)
 {
-    wally_hash160(key_out->pub_key, sizeof(key_out->pub_key),
-                  key_out->hash160, sizeof(key_out->hash160));
+    hash160(key_out->pub_key, sizeof(key_out->pub_key),
+	    key_out->hash160, sizeof(key_out->hash160));
 }
 
 int bip32_key_free(const struct ext_key *hdkey)

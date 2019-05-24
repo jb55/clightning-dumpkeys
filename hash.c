@@ -4,7 +4,7 @@
 #include "compiler.h"
 #include "hash.h"
 
-int wally_hash160(const unsigned char *bytes, size_t bytes_len,
+int hash160(const unsigned char *bytes, size_t bytes_len,
                   unsigned char *bytes_out, size_t len)
 {
 	struct sha256 sha;
