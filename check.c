@@ -13,7 +13,7 @@ int main()
 	const char desc[] = "combo(xpub661MyMwAqRbcEzDwwjzJhBnXBZpv9hdqY2JYRUtwzEZU6grFRhWkXx9c3HJ4EKR1Nvdwf5U3VoekstoKSKjfcJYhRrhMYeEzZzu2h7uZAQX/1/*)";
 	const char *desc_check = "j38hxvh0";
 	int ok = descriptor_checksum(desc, sizeof(desc)-1, checksum, sizeof(checksum));
-	assert(ok);
+	assert(ok == (int)strlen(desc_check));
 	assert(streq(checksum, desc_check));
 	return 0;
 }
