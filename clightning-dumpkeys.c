@@ -225,7 +225,7 @@ static void dump_bip32(struct ext_key *key, const char *name) {
 
 	printf("%s\t%s public\n", out, name);
 
-	snprintf(cbuf, sizeof(cbuf), "combo(%s/0/*)", out);
+	snprintf(cbuf, sizeof(cbuf), "combo(%s/*)", out);
 	descriptor_checksum(cbuf, strlen(cbuf), cbuf2, sizeof(cbuf2));
 
 	printf("%s#%s descriptor\n", cbuf, cbuf2);
