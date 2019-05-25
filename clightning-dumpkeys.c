@@ -6,6 +6,7 @@
 #include "bip32.h"
 #include "hash.h"
 #include "base58.h"
+#include "descriptor.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -168,7 +169,7 @@ static char hexchar(unsigned int val)
 	abort();
 }
 
-static bool hex_encode(const void *buf, size_t bufsize, char *dest,
+UNUSED static bool hex_encode(const void *buf, size_t bufsize, char *dest,
 		       size_t destsize)
 {
 	size_t i;
@@ -188,8 +189,10 @@ static bool hex_encode(const void *buf, size_t bufsize, char *dest,
 
 static void dump_bip32(struct ext_key *key, const char *name) {
 	static u8 buf[128];
+	static char cbuf[512];
+	static char cbuf2[512];
+
 	/* static char buf2[128]; */
-	static char hexbuf[128];
 	char *out;
 
 	/* key->version = BIP32_VER_MAIN_PRIVATE; */
@@ -221,10 +224,13 @@ static void dump_bip32(struct ext_key *key, const char *name) {
 				BASE58_FLAG_CHECKSUM, &out);
 
 	printf("%s\t%s public\n", out, name);
-	wally_free_string(out);
 
-	hex_encode(key->hash160, HASH160_LEN, hexbuf,
-		   sizeof(hexbuf));
+	snprintf(cbuf, sizeof(cbuf), "combo(%s)", out);
+	descriptor_checksum(cbuf, strlen(cbuf), cbuf2, sizeof(cbuf2));
+
+	printf("%s#%s descriptor\n", cbuf, cbuf2);
+
+	wally_free_string(out);
 
 }
 
@@ -244,8 +250,6 @@ static int dump_xpriv(const char *secretfile) {
 	printf("\n");
 	dump_bip32(&secretstuff.child_ext, "extended internal");
 
-	/* printf("sh(wpkh([%.*s/0]%s))\n", hexbuf); */
-	/* printf("wpkh(%s)\n", hexbuf); */
 
 	return 0;
 }
