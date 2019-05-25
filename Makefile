@@ -15,6 +15,7 @@ OBJS += compiler.o
 OBJS += ec.o
 OBJS += hash.o
 OBJS += base58.o
+OBJS += descriptor.o
 
 SRCS=$(OBJS:.o=.c)
 
