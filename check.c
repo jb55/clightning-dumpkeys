@@ -5,8 +5,6 @@
 #include <assert.h>
 #include <string.h>
 
-#define streq(a, b) strcmp(a, b) == 0
-
 int main()
 {
 	char checksum[9];
