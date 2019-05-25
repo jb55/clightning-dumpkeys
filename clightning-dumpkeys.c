@@ -228,7 +228,7 @@ static void dump_bip32(struct ext_key *key, const char *name) {
 	snprintf(cbuf, sizeof(cbuf), "combo(%s/*)", out);
 	descriptor_checksum(cbuf, strlen(cbuf), cbuf2, sizeof(cbuf2));
 
-	printf("%s#%s\t%s descriptor\n", name, cbuf, cbuf2);
+	printf("%s#%s\t%s descriptor\n", cbuf, cbuf2, name);
 
 	wally_free_string(out);
 
