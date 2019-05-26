@@ -187,53 +187,35 @@ UNUSED static bool hex_encode(const void *buf, size_t bufsize, char *dest,
 	return true;
 }
 
-static void dump_bip32(struct ext_key *key, const char *name) {
+static void print_key(struct ext_key *key, const char *name, int key_type,
+		      const char *key_type_name) {
 	static u8 buf[128];
 	static char cbuf[512];
 	static char cbuf2[512];
-
-	/* static char buf2[128]; */
 	char *out;
 
-	/* key->version = BIP32_VER_MAIN_PRIVATE; */
-
-	/* memset(secretstuff.bip32.parent160, 0, */
-	/*        sizeof(secretstuff.bip32.parent160)); */
-
-	int ret = bip32_key_serialize(key,
-				      BIP32_FLAG_KEY_PRIVATE,
-				      buf,
-				      BIP32_SERIALIZED_LEN);
+	int ret = bip32_key_serialize(key, key_type, buf, BIP32_SERIALIZED_LEN);
 
 	assert(ret == WALLY_OK);
 
 	wally_base58_from_bytes(buf, BIP32_SERIALIZED_LEN,
 				BASE58_FLAG_CHECKSUM, &out);
 
-	printf("%s\t%s private\n", out, name);
-	wally_free_string(out);
-
-	ret = bip32_key_serialize(key,
-				  BIP32_FLAG_KEY_PUBLIC,
-				  buf,
-				  BIP32_SERIALIZED_LEN);
-
-	assert(ret == WALLY_OK);
-
-	wally_base58_from_bytes(buf, BIP32_SERIALIZED_LEN,
-				BASE58_FLAG_CHECKSUM, &out);
-
-	printf("%s\t%s public\n", out, name);
+	printf("%s\t%s %s\n", out, name, key_type_name);
 
 	if (!streq(name, "root")) {
 		snprintf(cbuf, sizeof(cbuf), "combo(%s/*)", out);
 		descriptor_checksum(cbuf, strlen(cbuf), cbuf2, sizeof(cbuf2));
 
-		printf("%s#%s\t%s public descriptor\n", cbuf, cbuf2, name);
+		printf("%s#%s\t%s %s descriptor\n", cbuf, cbuf2, name, key_type_name);
 	}
-
 	wally_free_string(out);
 
+}
+
+static void dump_bip32(struct ext_key *key, const char *name) {
+	print_key(key, name, BIP32_FLAG_KEY_PRIVATE, "private");
+	print_key(key, name, BIP32_FLAG_KEY_PUBLIC, "public");
 }
 
 static int dump_xpriv(const char *secretfile) {
@@ -249,8 +231,8 @@ static int dump_xpriv(const char *secretfile) {
 	dump_bip32(&secretstuff.master, "root");
 	printf("\n");
 	dump_bip32(&secretstuff.parent_ext, "extended");
-	printf("\n");
-	dump_bip32(&secretstuff.child_ext, "extended internal");
+	/* printf("\n"); */
+	/* dump_bip32(&secretstuff.child_ext, "extended internal"); */
 
 
 	return 0;
