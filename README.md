@@ -8,6 +8,17 @@ Dump xpubs and xprvs from your clightning node
 
     $ ./clightning-dumpkeys ~/.lightning/hsm_secret
 
+It will dump your root+extended xprv/xpub with [output descriptors](https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md):
+
+```
+xprv9s21ZrQH143K2W9UqiTJL3qndXzRkEuzAoNwd6VLRu2VDtX6tACVz9q8BzDmJDkB6c6QQnfEWWvLtxB9M68XVpmcJCQodFrr843paWAXGeD	root private
+xpub661MyMwAqRbcEzDwwjzJhBnXBZpv9hdqY2JYRUtwzEZU6grFRhWkXx9c3HJ4EKR1Nvdwf5U3VoekstoKSKjfcJYhRrhMYeEzZzu2h7uZAQX	root public
+
+xprv9wPk6zRy29x8BLXUHWh8ssqf89xQWtrZeLUgEXyUKSqNdUJhXTJsMtdLCexXxhgxPYUFpQvUhz2WAyhh3uCXSLedbHkvX7jTnX4xQofjdbA	extended private
+combo(xprv9wPk6zRy29x8BLXUHWh8ssqf89xQWtrZeLUgEXyUKSqNdUJhXTJsMtdLCexXxhgxPYUFpQvUhz2WAyhh3uCXSLedbHkvX7jTnX4xQofjdbA/*)#u4tc9nwu	extended private descriptor
+xpub6AP6WVxrrXWRPpbwPYE9F1nPgBntvMaR1ZQH2vP5snNMWGdr4zd7ugwp3wukcTUxKu2rLCN9VBQAW3xioATnEWjZvQpx9cybj1jztJHJyp7	extended public
+combo(xpub6AP6WVxrrXWRPpbwPYE9F1nPgBntvMaR1ZQH2vP5snNMWGdr4zd7ugwp3wukcTUxKu2rLCN9VBQAW3xioATnEWjZvQpx9cybj1jztJHJyp7/*)#f64dm6yh	extended public descriptor
+```
 
 ## building
 
