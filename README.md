@@ -3,9 +3,11 @@
 
 Dump xpubs and xprvs from your clightning node
 
+
 ## usage
 
     $ ./clightning-dumpkeys ~/.lightning/hsm_secret
+
 
 ## building
 
@@ -13,7 +15,38 @@ You need to have the `secp256k1` library installed for this to compile
 
     $ make
 
-## todo
 
-- [x] dump xpubs
-- [ ] export as output descriptors
+## output descriptors
+
+You can load your clightning wallet keys into your full node with importmulti.
+
+First, save the `extended public (or private) descriptor` into a
+`descriptors.json` file, this will be used for importing into bitcoin-core:
+
+`descriptors.json`:
+```json
+[
+  {
+    "desc": "combo(xpub6AP6WVxrrXWRPpbwPYE9F1nPgBntvMaR1ZQH2vP5snNMWGdr4zd7ugwp3wukcTUxKu2rLCN9VBQAW3xioATnEWjZvQpx9cybj1jztJHJyp7/*)#f64dm6yh",
+    "keypool": false,
+    "timestamp": "now",
+    "watchonly": true,
+    "internal": false,
+    "range": [0, 1000]
+  }
+]
+```
+
+Change `watchonly` to `false` and `keypool` to `true` if you're using the
+extended private descriptor.
+
+`watchonly` means we're only going to watch these addresses, not spend them.
+
+`keypool` adds these keys into bitcoin-cores internal pool of keys, these are
+used when creating new addresses from the api, etc.
+
+Now we can import this into bitcoin:
+
+    $ bitcoin-cli createwallet clightning
+    $ bitcoin-cli -rpcwallet=clightning importmulti "$(cat descriptors.json)" '{"rescan": false}'
+    $ bitcoin-cli rescanblockchain 503500
