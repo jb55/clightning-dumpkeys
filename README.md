@@ -60,4 +60,4 @@ Now we can import this into bitcoin:
 
     $ bitcoin-cli createwallet clightning
     $ bitcoin-cli -rpcwallet=clightning importmulti "$(cat descriptors.json)" '{"rescan": false}'
-    $ bitcoin-cli rescanblockchain 503500
+    $ bitcoin-cli -rpcwallet=clightning rescanblockchain 503500
