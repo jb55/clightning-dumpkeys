@@ -1,7 +1,13 @@
 
 # clightning-dumpkeys
 
-Dump xpubs and xprvs from your clightning node
+Dump funding wallet xpubs and xprv from your clightning node.
+
+**WARNING** just saving your xprvs is not enough to backup your
+clightning node. There are other channel state (p2wsh) outputs that are
+not dumped here. Please use the recommended backup method provided by
+clightning (as of this writing there aren't any, but that should
+change soon).
 
 
 ## usage
