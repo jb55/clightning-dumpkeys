@@ -64,6 +64,6 @@ used when creating new addresses from the api, etc.
 
 Now we can import this into bitcoin:
 
-    $ bitcoin-cli createwallet clightning
+    $ bitcoin-cli createwallet clightning true
     $ bitcoin-cli -rpcwallet=clightning importmulti "$(cat descriptors.json)" '{"rescan": false}'
     $ bitcoin-cli -rpcwallet=clightning rescanblockchain 503500
