@@ -22,7 +22,7 @@ SRCS=$(OBJS:.o=.c)
 all: $(BIN)
 
 $(BIN): clightning-dumpkeys.o $(OBJS)
-	$(CC) $(LDFLAGS) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 clean:
 	rm -f $(OBJS) clightning-dumpkeys.o check.o $(BIN) check
