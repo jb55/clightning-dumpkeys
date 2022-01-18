@@ -1,6 +1,7 @@
 
 #include "bip32.h"
 #include "descriptor.h"
+#include "short_types.h"
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
@@ -13,5 +14,6 @@ int main()
 	int ok = descriptor_checksum(desc, sizeof(desc)-1, checksum, sizeof(checksum));
 	assert(ok == (int)strlen(desc_check));
 	assert(streq(checksum, desc_check));
+	printf("ok!\n");
 	return 0;
 }
