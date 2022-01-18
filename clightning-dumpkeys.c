@@ -20,6 +20,11 @@
 #define fatal(fmt, ...) do { fprintf(stderr, fmt "\n", __VA_ARGS__); exit(1); } while (0)
 #define fatal1(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while (0)
 
+enum networks {
+	mainnet,
+	testnet
+};
+
 /* General 256-bit secret, which must be private.  Used in various places. */
 struct secret {
 	u8 data[32];
@@ -64,7 +69,7 @@ bool read_all(int fd, void *data, size_t size)
 
 
 
-static void populate_secretstuff(void)
+static void populate_secretstuff(enum networks network)
 {
 	u8 bip32_seed[BIP32_ENTROPY_LEN_256];
 	u32 salt = 0;
@@ -72,10 +77,17 @@ static void populate_secretstuff(void)
 	const u32 flags = SECP256K1_CONTEXT_VERIFY | SECP256K1_CONTEXT_SIGN;
 	secp256k1_context *ctx = secp256k1_context_create(flags);
 
-	bip32_key_version = (struct bip32_key_version) {
-		.bip32_pubkey_version = BIP32_VER_MAIN_PUBLIC,
-		.bip32_privkey_version = BIP32_VER_MAIN_PRIVATE
-	};
+	if (network == mainnet) {
+		bip32_key_version = (struct bip32_key_version) {
+			.bip32_pubkey_version = BIP32_VER_MAIN_PUBLIC,
+			.bip32_privkey_version = BIP32_VER_MAIN_PRIVATE
+		};
+	} else {
+		bip32_key_version = (struct bip32_key_version) {
+			.bip32_pubkey_version = BIP32_VER_TEST_PUBLIC,
+			.bip32_privkey_version = BIP32_VER_TEST_PRIVATE
+		};
+	}
 
 	assert(bip32_key_version.bip32_pubkey_version == BIP32_VER_MAIN_PUBLIC
 			|| bip32_key_version.bip32_pubkey_version == BIP32_VER_TEST_PUBLIC);
@@ -133,7 +145,7 @@ static void populate_secretstuff(void)
 		fatal1("Can't derive private bip32 key");
 }
 
-static void load_hsm(const char *secretfile)
+static void load_hsm(const char *secretfile, enum networks network)
 {
 	int fd = open(secretfile ? secretfile : "hsm_secret", O_RDONLY);
 	if (fd < 0)
@@ -142,7 +154,7 @@ static void load_hsm(const char *secretfile)
 		fatal("reading: %s", strerror(errno));
 	close(fd);
 
-	populate_secretstuff();
+	populate_secretstuff(network);
 }
 
 static int wally_free_string(char *str)
@@ -218,15 +230,21 @@ static void dump_bip32(struct ext_key *key, const char *name) {
 	print_key(key, name, BIP32_FLAG_KEY_PUBLIC, "public");
 }
 
-static int dump_xpriv(const char *secretfile) {
+static int dump_xpriv(const char *secretfile, enum networks network) {
 
-	bip32_key_version = (struct bip32_key_version)
-		{   .bip32_pubkey_version  = BIP32_VER_MAIN_PUBLIC
-		  , .bip32_privkey_version = BIP32_VER_MAIN_PRIVATE
-		};
+	if (network == mainnet) {
+		bip32_key_version = (struct bip32_key_version)
+			{   .bip32_pubkey_version  = BIP32_VER_MAIN_PUBLIC
+			  , .bip32_privkey_version = BIP32_VER_MAIN_PRIVATE
+			};
+	} else {
+		bip32_key_version = (struct bip32_key_version)
+			{   .bip32_pubkey_version  = BIP32_VER_TEST_PUBLIC
+			  , .bip32_privkey_version = BIP32_VER_TEST_PRIVATE
+			};
+	}
 
-
-	load_hsm(secretfile);
+	load_hsm(secretfile, network);
 
 	dump_bip32(&secretstuff.master, "root");
 	printf("\n");
@@ -240,18 +258,27 @@ static int dump_xpriv(const char *secretfile) {
 
 void usage()
 {
-	fprintf(stderr, "usage: clightning-dumpkeys <hsmd_secretfile>\n");
+	fprintf(stderr, "usage: clightning-dumpkeys <hsmd_secretfile> [--testnet]\n");
 	exit(42);
 }
 
 int main(int argc, char *argv[])
 {
-	if (argc != 2)
+	if (argc != 2 && argc != 3)
 		usage();
+
+	enum networks network = mainnet;
+	if (argc == 3) {
+		if (strcmp(argv[2], "--testnet") == 0) {
+			network = testnet;
+		} else {
+			usage();
+		}
+	}
 
 	const char *secretfile = argv[1];
 
-	dump_xpriv(secretfile);
+	dump_xpriv(secretfile, network);
 
 	return 0;
 }
