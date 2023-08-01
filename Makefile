@@ -2,8 +2,8 @@
 BIN = clightning-dumpkeys
 PREFIX ?= /usr/local
 
-LDFLAGS = -lsecp256k1
-CFLAGS = $(DEFS) -DHAVE_LITTLE_ENDIAN -O2 -g -I src -Wall -Werror -Wextra -std=c99
+LDFLAGS = -l:libsecp256k1.a -L${PREFIX}/lib
+CFLAGS = $(DEFS) -DHAVE_LITTLE_ENDIAN -O2 -g -I ${PREFIX}/include -Wall -Werror -Wextra -std=c99
 
 OBJS  = sha256.o
 OBJS += sha512.o
