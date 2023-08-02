@@ -21,6 +21,6 @@ typedef int8_t s8;
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-#define streq(a, b) strcmp(a, b) == 0
+#define streq(a, b) (strcmp(a, b) == 0)
 
 #endif /* DK_SHORT_TYPES_H */
